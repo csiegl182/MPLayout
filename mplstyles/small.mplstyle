@@ -1,0 +1,9 @@
+font.size : 20
+font.serif : 'Computer Modern Roman'
+text.usetex : True
+svg.fonttype : none
+figure.figsize : 9.0, 4.5
+lines.linewidth : 3
+lines.markeredgewidth : 0
+lines.markersize : 15
+axes.axisbelow : True

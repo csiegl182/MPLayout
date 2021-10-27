@@ -66,7 +66,6 @@ def resample(vec, N):
         print("Waring: Inaccurate resampling: Reference length {} < desired length {}".format(len(vec), N))
         return vec
 
-##
 def reveal_path(elem_path, _, N):
     elem_path = elem_path.split()
     elem_path = [' '.join(elem_path[i:i+3]) for i in range(0, len(elem_path), 3)]
@@ -153,38 +152,6 @@ def rotate_path_with_two_points(elem_path, ref_path, N):
 
     path_values = [' '.join(elem_path[:4] + [str(x), str(y)]) for x, y in zip(x_ref, y_ref)]
     return path_values
-
-def rotate_path(elem_path, ref_path, N):
-    elem_path = elem_path.split()
-    p_poly = np.hstack([np.matrix([x, y], dtype=float).T for x,y in zip(elem_path[1::3], elem_path[2::3])])
-    t_poly = [t for t in elem_path[::3]]
-
-    x0 = np.mean(get_path_x(ref_path))
-
-    y_ref = get_path_y(ref_path)
-    y0 = np.mean(y_ref)
-    y_ref -= y0
-    y_ref /= max(abs(y_ref))
-    y_ref = resample(y_ref, N)
-
-    x_ref = np.sqrt(1-y_ref**2)
-    x_sign = -np.sign(np.diff(y_ref))
-    x_sign = np.append(x_sign, x_sign[-1])
-    x_ref *= x_sign
-    phi_vec = np.arctan2(y_ref, x_ref)
-
-    p0 = np.matrix([x0, y0]).transpose()
-    p_poly0 = p_poly-p0
-    phi0 = np.mean(np.arctan2(p_poly0[1,:], p_poly0[0,:]))
-
-    phi_vec -= phi0
-
-    A = lambda phi: np.matrix([[np.cos(phi), -np.sin(phi)], [np.sin(phi), np.cos(phi)]])
-
-    poly_values = [np.array(A(phi)*p_poly0 + p0) for phi in phi_vec]
-    poly_values = [ [' '.join([t, str(p[0]), str(p[1])]) for t, p in zip(t_poly, pv.T)] for pv in poly_values]
-    poly_values = [' '.join(pv) for pv in poly_values]
-    return poly_values
 
 def move_projection(elem_path, ref_path, N):
     elem_path = elem_path.split()
@@ -305,51 +272,3 @@ def animate_svg(svg_file, animation_config_set):
     with open(svg_file, 'w') as f:
         f.write(svg.toxml())
     print('Animated file size: {}'.format(pretty_file_size(os.path.getsize(svg_file))))
-
-def redraw_circular_path(svg_file, path_id, N, phi_offset=0, flip=False):
-    print('Original file size: {}'.format(pretty_file_size(os.path.getsize(svg_file))))
-    svg = create_document(svg_file)
-    path_values = get_path_values(svg, path_id)
-    path_x = np.array(get_path_x(path_values))
-    path_y = np.array(get_path_y(path_values))
-    x0 = np.mean(path_x)
-    y0 = np.mean(path_y)
-    r = np.mean(np.sqrt((path_x-x0)**2 + (path_y-y0)**2))
-
-    phi = np.linspace(0, 2*np.pi, N)+phi_offset
-    if flip:
-        phi *= -1
-    path_x_i = r*np.cos(phi) + x0
-    path_y_i = r*np.sin(phi) + y0
-
-    new_path = ['{:.4f}'.format(x)+' '+'{:.4f}'.format(y) for x, y in zip(path_x_i, path_y_i)]
-    new_path = 'M ' + ' L '.join(new_path)
-
-    path_element = get_path_element(svg, path_id)
-    path_element.setAttribute('d', new_path)
-
-    with open(svg_file, 'w') as f:
-        f.write(svg.toxml())
-
-    print('New file size: {}'.format(pretty_file_size(os.path.getsize(svg_file))))
-
-def interpolate_path(svg_file, path_id, N):
-    print('Original file size: {}'.format(pretty_file_size(os.path.getsize(svg_file))))
-    svg = create_document(svg_file)
-    path_values = get_path_values(svg, path_id)
-    path_x = np.array(get_path_x(path_values))
-    path_y = np.array(get_path_y(path_values))
-
-    path_x_i = np.linspace(path_x[0], path_x[-1], N)
-    path_y_i = np.interp(path_x_i, path_x, path_y)
-
-    new_path = ['{:.4f}'.format(x)+' '+'{:.4f}'.format(y) for x, y in zip(path_x_i, path_y_i)]
-    new_path = 'M ' + ' L '.join(new_path)
-
-    path_element = get_path_element(svg, path_id)
-    path_element.setAttribute('d', new_path)
-
-    with open(svg_file, 'w') as f:
-        f.write(svg.toxml())
-
-    print('New file size: {}'.format(pretty_file_size(os.path.getsize(svg_file))))

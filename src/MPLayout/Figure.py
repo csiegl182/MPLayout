@@ -4,9 +4,10 @@ from dataclasses import dataclass
 from typing import Callable, List
 import os
 import numpy
+import pkg_resources
 
 def get_mplstyle_path(style: str):
-    return os.path.join('src', 'MPLayout', 'mplstyles', style + '.mplstyle')
+    return pkg_resources.resource_filename('MPLayout', os.path.join('mplstyles', style + '.mplstyle'))
 
 def new_figure(style: str = 'default', num: int = 1, clear: bool = True, **kwargs):
     matplotlib.style.use(get_mplstyle_path(style))

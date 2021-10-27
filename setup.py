@@ -21,7 +21,8 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     package_dir={"": "src"},
-    package_data={"MPLayout": ["mplstyles/*.mplstyle"]},
+    include_package_data=True,
+    package_data={"": ["mplstyles/*.mplstyle"]},
     packages=setuptools.find_packages(where="src"),
     python_requires=">=3.6",
 )

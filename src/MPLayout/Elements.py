@@ -1,6 +1,6 @@
 import numpy
 import matplotlib.patches as ptch
-from PlottingExtensions import Style as sty
+import MPLayout.Style as sty
 
 def get_aspect(ax):
     figW, figH = ax.get_figure().get_size_inches()
@@ -67,6 +67,9 @@ def arrow(ax, xy0, xy1, rel_height=0.15, rel_width=0.13, color=sty.color.black, 
     base_dx = base_length*numpy.cos(angle)
     base_dy = base_length*numpy.sin(angle)
     ax.plot([xy0[0], xy0[0]+base_dx], [xy0[1], xy0[1]+base_dy], color=color, gid=gid+'_base', **kwargs)
+
+def complex_pointer(ax, z0, z1, **kwargs):
+    arrow(ax, (numpy.real(z0), numpy.imag(z0)), (numpy.real(z1), numpy.imag(z1)), **kwargs)
 
 def cursor(ax, xy, r=1, color=sty.color.black, gid=''):
     patch = ptch.Ellipse(xy, r, r/get_aspect(ax), color=color, gid=gid, clip_on=False, zorder=100)

@@ -10,6 +10,10 @@ def get_mplstyle_path(style: str):
     return pkg_resources.resource_filename('MPLayout', os.path.join('mplstyles', style + '.mplstyle'))
 
 def new_figure(style: str = 'default', num: int = 1, clear: bool = True, **kwargs):
+    if num == 1:
+        matplotlib.pyplot.close('all')
+    else:
+        matplotlib.pyplot.close(num)
     matplotlib.style.use(get_mplstyle_path(style))
     fig, ax = mpl.subplots(num=num, clear=clear, **kwargs)
     fig.show()
@@ -93,7 +97,7 @@ class Layouter:
         if nrows == 1 and ncols == 1:
             self.axes = numpy.array(self.axes, ndmin=2)
         else:
-            self.axes.reshape((nrows, ncols))
+            self.axes = self.axes.reshape((nrows, ncols))
         for row in range(nrows):
             horizontal_align_axes(self.axes[row,:], grid_layout)        
         for col in range(ncols):

@@ -15,6 +15,19 @@ def get_aspect(ax):
 def polygon(ax, x, y, facecolor=sty.color.lightgrey, edgecolor=sty.color.darkgrey, **kwargs):
     poly = ptch.Polygon([*zip(x,y)], facecolor=facecolor, edgecolor=edgecolor, **kwargs)
     ax.add_patch(poly)
+
+def z_arrow(ax, x, y, z_dir=1, diameter=0.1, color=sty.color.black, **kwargs):
+    radius = diameter/2
+    circle = ptch.Circle((x, y), radius, edgecolor=color, facecolor=sty.color.white, **kwargs)
+    ax.add_patch(circle)
+    if z_dir > 0:
+        dot = ptch.Circle((x, y), radius/10, edgecolor=color, facecolor=sty.color.black, **kwargs)
+        ax.add_patch(dot)
+    else:
+        delta = numpy.sqrt(2)/2*radius
+        ax.plot((x-delta, x+delta), (y-delta, y+delta), color=color, **kwargs)
+        ax.plot((x-delta, x+delta), (y+delta, y-delta), color=color, **kwargs)
+
     
 def arrow_head(ax, xy_tip, height, width, direction='up', angle=None, color=sty.color.black, gid='', **kwargs):
     def A(phi, r):

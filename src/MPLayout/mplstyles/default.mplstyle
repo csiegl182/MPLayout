@@ -7,3 +7,4 @@ lines.linewidth : 3
 lines.markeredgewidth : 0
 lines.markersize : 15
 axes.axisbelow : True
+patch.linewidth: 3

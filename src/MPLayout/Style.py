@@ -17,6 +17,7 @@ class color:
     grey = (.7, .7, .7)
     lightgrey = (.9, .9, .9)
     darkgrey = (.5, .5, .5)
+    darkdarkgrey = (.2, .2, .2)
     darkblue = (.13, .22, .39)
     lightblue = (.4, .7, 1)
     red = (1, .3, 0)

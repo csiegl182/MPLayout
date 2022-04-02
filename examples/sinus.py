@@ -18,5 +18,5 @@ def plot_sinus(ax):
     ax.set_ylabel('$\\sin(2\\pi\\cdot 50 \\mathrm{Hz}\\cdot t)\\rightarrow$')
 
 fig = Layouter(grid_layout=gl)
-fig.layout(plot_sinus)
+fig.apply(plot_sinus)
 

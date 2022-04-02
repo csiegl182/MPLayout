@@ -103,16 +103,16 @@ class Layouter:
         for col in range(ncols):
             vertical_align_axes(self.axes[:,col], grid_layout)
 
-    def layout(self, ax_fn: Callable[[mpl.axes], None], row=0, col=0):
+    def apply(self, ax_fn: Callable[[mpl.axes], None], row=0, col=0):
         ax_fn(self.axes[row, col])
 
-    def layout_all(self, ax_fn: Callable[[mpl.axes], None]):
+    def apply_all(self, ax_fn: Callable[[mpl.axes], None]):
         for ax in self.axes.flatten(): ax_fn(ax)
 
-    def layout_row(self, ax_fn: Callable[[mpl.axes], None], row=0):
+    def apply_row(self, ax_fn: Callable[[mpl.axes], None], row=0):
         for ax in self.axes[row,:]: ax_fn(ax)
 
-    def layout_col(self, ax_fn: Callable[[mpl.axes], None], col=0):
+    def apply_col(self, ax_fn: Callable[[mpl.axes], None], col=0):
         for ax in self.axes[:,col]: ax_fn(ax)
 
 class Pool:

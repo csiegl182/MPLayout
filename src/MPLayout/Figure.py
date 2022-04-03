@@ -92,7 +92,9 @@ def horizontal_align_axes(axes:List[mpl.axes], grid_layout: GridLayout = GridLay
         set_axes_offset=set_axes_left_offset)
 
 def get_caller_filename():
-    filename = inspect.stack()[-1].filename
+    caller_stack_filenames = [stack.filename for stack in inspect.stack()]
+    cwd = os.path.abspath(os.curdir)
+    filename = [filename for filename in caller_stack_filenames if filename.startswith(cwd)][-1]
     return os.path.abspath(filename)
 
 class Layouter:

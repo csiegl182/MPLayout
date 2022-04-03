@@ -5,6 +5,7 @@ from typing import Callable, List
 import os
 import numpy
 import pkg_resources
+import inspect
 
 def get_mplstyle_path(style: str):
     return pkg_resources.resource_filename('MPLayout', os.path.join('mplstyles', style + '.mplstyle'))
@@ -90,10 +91,15 @@ def horizontal_align_axes(axes:List[mpl.axes], grid_layout: GridLayout = GridLay
         get_axes_offset=get_axes_left_offset,
         set_axes_offset=set_axes_left_offset)
 
+def get_caller_filename():
+    filename = inspect.stack()[-1].filename
+    return os.path.abspath(filename)
+
 class Layouter:
     def __init__(self, nrows=1, ncols=1, num: int = 1, grid_layout: GridLayout = GridLayout(), style: str = 'default', **subplot_args):
         self.grid_layout = grid_layout
-        self.fig, self.axes = new_figure(num=num, nrows=nrows, ncols=ncols, style=style, **subplot_args)
+        self.num = num
+        self.fig, self.axes = new_figure(num=self.num, nrows=nrows, ncols=ncols, style=style, **subplot_args)
         if nrows == 1 and ncols == 1:
             self.axes = numpy.array(self.axes, ndmin=2)
         else:
@@ -115,13 +121,37 @@ class Layouter:
     def apply_col(self, ax_fn: Callable[[mpl.axes], None], col=0):
         for ax in self.axes[:,col]: ax_fn(ax)
 
+    def save(self, filename=None, rel_path='../pics', suffix='', file_type='svg'):
+        if filename == None:
+            filename = get_caller_filename()
+        path, filename = os.path.split(filename)
+        picture_name, _ = os.path.splitext(filename)
+        picture_name += suffix
+        picture_name += '.'+file_type
+        picture_path = os.path.join(path, rel_path)
+        target_file = os.path.join(picture_path, picture_name)
+        self.fig.savefig(target_file)
+
 class Pool:
     def __init__(self, size: int = 1, grid_layout: GridLayout = GridLayout(), style: str = 'default', **subplot_args):
-        self.figures = [Layouter(num=i, grid_layout=grid_layout, style=style, **subplot_args) for i in range(1, size+1)]
+        self.layouts = [Layouter(num=i, grid_layout=grid_layout, style=style, **subplot_args) for i in range(1, size+1)]
 
     def arange(self, begin_with: int = 1):
         pass
 
+    def apply(self, ax_fn: Callable[[mpl.axes], None]):
+        for layout in self.layouts:
+            layout.apply_all(ax_fn)
+
+    def save(self, filename=None, rel_path='../pics', file_type='svg'):
+        for i, layout in enumerate(self.layouts):
+            layout.save(
+                filename=filename,
+                rel_path=rel_path,
+                suffix=f'_{i+1}',
+                file_type=file_type
+            )
+
     def __getitem__(self, key: int):
-        return self.figures[key]
+        return self.layouts[key-1]
 

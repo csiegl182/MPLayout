@@ -20,7 +20,9 @@ def z_arrow(ax, x, y, z_dir=1, diameter=0.1, color=sty.color.black, **kwargs):
     radius = diameter/2
     circle = ptch.Circle((x, y), radius, edgecolor=color, facecolor=sty.color.white, **kwargs)
     ax.add_patch(circle)
-    if z_dir > 0:
+    if z_dir == 0:
+        pass
+    elif z_dir > 0:
         dot = ptch.Circle((x, y), radius/10, edgecolor=color, facecolor=sty.color.black, **kwargs)
         ax.add_patch(dot)
     else:

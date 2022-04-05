@@ -121,8 +121,8 @@ def coordinate_system(ax, x_arrow_length=0.05, x_arrow_base=0.1, neg_arrow=True,
     arrow_width = width*x_arrow_base
 
     move_spines(ax, xlim, ylim, arrow_height)
-    arrow_head(ax, (xlim[1], 0), arrow_height, arrow_width, direction='right', clip_on=False, gid='x_axis_pos_head{:s}'.format(gid_ext))
-    arrow_head(ax, (0, ylim[1]), arrow_height, arrow_width, direction='up', clip_on=False, gid='y_axis_pos_head{:s}'.format(gid_ext))
+    arrow_head(ax, (xlim[1], 0), arrow_height, arrow_width, direction='right', clip_on=False, gid='x_axis_pos_head{:s}'.format(gid_ext), zorder=200)
+    arrow_head(ax, (0, ylim[1]), arrow_height, arrow_width, direction='up', clip_on=False, gid='y_axis_pos_head{:s}'.format(gid_ext), zorder=200)
     if xlim[0] < 0 and neg_arrow:
         arrow_head(ax, (xlim[0], 0), arrow_height, arrow_width, direction='left', clip_on=False, gid='x_axis_neg_head{:s}'.format(gid_ext))
     if ylim[0] < 0 and neg_arrow:

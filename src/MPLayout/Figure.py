@@ -10,13 +10,18 @@ import inspect
 def get_mplstyle_path(style: str):
     return pkg_resources.resource_filename('MPLayout', os.path.join('mplstyles', style + '.mplstyle'))
 
-def new_figure(style: str = 'default', num: int = 1, clear: bool = True, **kwargs):
+def new_figure(style: str = 'default', num: int = 1, clear: bool = True, xkcd: bool = False, **kwargs):
     if num == 1:
         matplotlib.pyplot.close('all')
     else:
         matplotlib.pyplot.close(num)
     matplotlib.style.use(get_mplstyle_path(style))
-    fig, ax = mpl.subplots(num=num, clear=clear, **kwargs)
+    if xkcd:
+        matplotlib.rcParams['text.usetex'] = False
+        with matplotlib.pyplot.xkcd():
+            fig, ax = mpl.subplots(num=num, clear=clear, **kwargs)
+    else:
+        fig, ax = mpl.subplots(num=num, clear=clear, **kwargs)
     fig.show()
     return fig, ax
 
@@ -98,10 +103,10 @@ def get_caller_filename():
     return os.path.abspath(filename)
 
 class Layouter:
-    def __init__(self, nrows=1, ncols=1, num: int = 1, grid_layout: GridLayout = GridLayout(), style: str = 'default', **subplot_args):
+    def __init__(self, nrows=1, ncols=1, num: int = 1, grid_layout: GridLayout = GridLayout(), style: str = 'default', xkcd: bool = False, **subplot_args):
         self.grid_layout = grid_layout
         self.num = num
-        self.fig, self.axes = new_figure(num=self.num, nrows=nrows, ncols=ncols, style=style, **subplot_args)
+        self.fig, self.axes = new_figure(num=self.num, nrows=nrows, ncols=ncols, style=style, xkcd=xkcd, **subplot_args)
         if nrows == 1 and ncols == 1:
             self.axes = numpy.array(self.axes, ndmin=2)
         else:

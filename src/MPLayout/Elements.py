@@ -36,7 +36,7 @@ def arrow_head(ax, xy_tip, height, width, direction='up', angle=None, color=sty.
         return numpy.matrix([[numpy.cos(phi)   , -numpy.sin(phi)*r],
                              [numpy.sin(phi)/r ,  numpy.cos(phi)  ]])
 
-    def arrow_polygon(xy_tip, heigth, width, angle, xy_aspect):
+    def arrow_polygon(xy_tip, height, width, angle, xy_aspect):
         p_tip = numpy.matrix([[xy_tip[0]], [xy_tip[1]]])
         p = numpy.matrix([numpy.array([-height, 0, -height]),
                           numpy.array([width/2, 0, -width/2])])
@@ -63,25 +63,42 @@ def arrow_head(ax, xy_tip, height, width, direction='up', angle=None, color=sty.
     patch = get_patch(polygon, color, gid, **kwargs)
     ax.add_patch(patch)
 
-def arrow(ax, xy0, xy1, rel_height=0.15, rel_width=0.13, color=sty.color.black, gid='', **kwargs):
+def arrow(ax, xy0, xy1, height=None, width=None, tail=False, color=sty.color.black, gid='', **kwargs):
     dx = xy1[0]-xy0[0]
     dy = xy1[1]-xy0[1]
     length = numpy.sqrt(dx**2 + dy**2)
-    angle = numpy.arctan2(dy, dx)
+    alpha = numpy.arctan2(dy, dx)
+    if height is None:
+        height = 0.15*length
+    if width is None:
+        width = 3/4*height
     arrow_head(
         ax=ax,
         xy_tip=xy1,
-        height=rel_height*length,
-        width=rel_width*length,
-        angle=angle,
+        height=height,
+        width=width,
+        angle=alpha,
         color=color,
         gid=gid+'_head',
         **kwargs)
+    if tail:
+        arrow_head(
+            ax=ax,
+            xy_tip=xy0,
+            height=height,
+            width=width,
+            angle=alpha-numpy.pi,
+            color=color,
+            gid=gid+'_tail',
+            **kwargs)
 
-    base_length = (1-rel_height)*length
-    base_dx = base_length*numpy.cos(angle)
-    base_dy = base_length*numpy.sin(angle)
-    ax.plot([xy0[0], xy0[0]+base_dx], [xy0[1], xy0[1]+base_dy], color=color, gid=gid+'_base', **kwargs)
+    if tail:
+        xy0[0]+=height*numpy.cos(alpha)
+        xy0[1]+=height*numpy.sin(alpha)
+    xy1[0]-=height*numpy.cos(alpha)
+    xy1[1]-=height*numpy.sin(alpha)
+
+    ax.plot([xy0[0], xy1[0]], [xy0[1], xy1[1]], color=color, gid=gid+'_base', **kwargs)
 
 def complex_pointer(ax, z0, z1, **kwargs):
     arrow(ax, (numpy.real(z0), numpy.imag(z0)), (numpy.real(z1), numpy.imag(z1)), **kwargs)

@@ -97,8 +97,6 @@ def arrow(ax, xy0, xy1, height=None, width=None, tail=False, color=sty.color.bla
     if tail:
         xy0[0]+=height*numpy.cos(alpha)
         xy0[1]+=height*numpy.sin(alpha)
-    print(f'{alpha=}')
-    print(f'{height=}')
     xy1[0]-=height*numpy.cos(alpha)/get_aspect(ax)
     xy1[1]-=height*numpy.sin(alpha)/get_aspect(ax)
 

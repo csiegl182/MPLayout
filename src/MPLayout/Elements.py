@@ -1,3 +1,4 @@
+from matplotlib import scale
 import numpy
 import itertools
 import matplotlib.patches as ptch
@@ -94,11 +95,15 @@ def arrow(ax, xy0, xy1, height=None, width=None, tail=False, color=sty.color.bla
             gid=gid+'_tail',
             **kwargs)
 
+    if get_aspect(ax) > 1:
+        aspect = get_aspect(ax)
+    else:
+        aspect = 1
     if tail:
-        xy0[0]+=height*numpy.cos(alpha)
-        xy0[1]+=height*numpy.sin(alpha)
-    xy1[0]-=height*numpy.cos(alpha)/get_aspect(ax)
-    xy1[1]-=height*numpy.sin(alpha)/get_aspect(ax)
+        xy0[0]+=height*numpy.cos(alpha)/aspect
+        xy0[1]+=height*numpy.sin(alpha)/aspect
+    xy1[0]-=height*numpy.cos(alpha)/aspect
+    xy1[1]-=height*numpy.sin(alpha)/aspect
 
     ax.plot([xy0[0], xy1[0]], [xy0[1], xy1[1]], color=color, gid=gid+'_base', **kwargs)
 

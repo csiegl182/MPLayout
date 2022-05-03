@@ -1,5 +1,6 @@
 import matplotlib
 import matplotlib.pyplot as mpl
+import MPLayout.Viewports as vp
 from dataclasses import dataclass
 from typing import Callable, List
 import os
@@ -67,6 +68,12 @@ def align_axes(axes:List[mpl.axes], lower_limit:float, upper_limit:float, gap:fl
     offsets = numpy.arange(lower_limit, upper_limit, axes_size+gap)
     for ax, offset in zip(axes, offsets): set_axes_offset(ax, offset)
 
+def scale_axes_y(axes:List[mpl.axes], ax_ref:mpl.axes):
+    pos_ref = ax_ref.get_position().bounds
+    for ax in axes:
+        pos = ax.get_position().bounds
+        ax.set_position([pos[0], pos[1], pos[2]*pos_ref[3]/pos[3], pos_ref[3]])
+
 @dataclass
 class GridLayout:   
     x_min: float = 0.1
@@ -103,10 +110,11 @@ def get_caller_filename():
     return os.path.abspath(filename)
 
 class Layouter:
-    def __init__(self, nrows=1, ncols=1, num: int = 1, grid_layout: GridLayout = GridLayout(), style: str = 'default', xkcd: bool = False, **subplot_args):
+    def __init__(self, nrows=1, ncols=1, num: int = 1, grid_layout: GridLayout = GridLayout(), style: str = 'default', viewport = vp.normal, xkcd: bool = False, **subplot_args):
         self.grid_layout = grid_layout
         self.num = num
         self.fig, self.axes = new_figure(num=self.num, nrows=nrows, ncols=ncols, style=style, xkcd=xkcd, **subplot_args)
+        viewport(self.fig)
         if nrows == 1 and ncols == 1:
             self.axes = numpy.array(self.axes, ndmin=2)
         else:
@@ -138,6 +146,20 @@ class Layouter:
         picture_path = os.path.join(path, rel_path)
         target_file = os.path.join(picture_path, picture_name)
         self.fig.savefig(target_file)
+
+def layout_portrait(**kwargs):
+    layout = Layouter(**kwargs)
+    layout.fig.set_size_inches([5.5, 8])
+    return layout
+
+def layout_1x2_normal_square(**kwargs):
+    layout = Layouter(
+        ncols=2,
+        sharey=True,
+        **kwargs)
+    ax = layout.axes.flatten()
+    scale_axes_y(ax[1:], ax[0])
+    return layout
 
 class Pool:
     def __init__(self, size: int = 1, grid_layout: GridLayout = GridLayout(), style: str = 'default', **subplot_args):

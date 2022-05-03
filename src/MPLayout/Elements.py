@@ -1,4 +1,5 @@
 import numpy
+import itertools
 import matplotlib.patches as ptch
 import MPLayout.Style as sty
 
@@ -67,6 +68,7 @@ def arrow(ax, xy0, xy1, height=None, width=None, tail=False, color=sty.color.bla
     dx = xy1[0]-xy0[0]
     dy = xy1[1]-xy0[1]
     length = numpy.sqrt(dx**2 + dy**2)
+    alpha_r = numpy.arctan2(dy*get_aspect(ax), dx)
     alpha = numpy.arctan2(dy, dx)
     if height is None:
         height = 0.15*length
@@ -77,7 +79,7 @@ def arrow(ax, xy0, xy1, height=None, width=None, tail=False, color=sty.color.bla
         xy_tip=xy1,
         height=height,
         width=width,
-        angle=alpha,
+        angle=alpha_r,
         color=color,
         gid=gid+'_head',
         **kwargs)
@@ -95,8 +97,10 @@ def arrow(ax, xy0, xy1, height=None, width=None, tail=False, color=sty.color.bla
     if tail:
         xy0[0]+=height*numpy.cos(alpha)
         xy0[1]+=height*numpy.sin(alpha)
-    xy1[0]-=height*numpy.cos(alpha)
-    xy1[1]-=height*numpy.sin(alpha)
+    print(f'{alpha=}')
+    print(f'{height=}')
+    xy1[0]-=height*numpy.cos(alpha)/get_aspect(ax)
+    xy1[1]-=height*numpy.sin(alpha)/get_aspect(ax)
 
     ax.plot([xy0[0], xy1[0]], [xy0[1], xy1[1]], color=color, gid=gid+'_base', **kwargs)
 
@@ -106,6 +110,23 @@ def complex_pointer(ax, z0, z1, **kwargs):
 def cursor(ax, xy, r=1, color=sty.color.black, gid=''):
     patch = ptch.Ellipse(xy, r, r/get_aspect(ax), color=color, gid=gid, clip_on=False, zorder=100)
     ax.add_patch(patch) 
+
+def vector_field(ax, vec_fcn, x_start, x_end, delta_x, y_start, y_end, delta_y, length_scale=0.8, height=None, width=None, **kwargs):
+    xvec = numpy.arange(x_start, x_end+delta_x, delta_x)
+    yvec = numpy.arange(y_start, y_end+delta_y, delta_y)
+
+    fmax_x = numpy.max([vec_fcn(x,y)[0] for x, y in itertools.product(xvec, yvec)])
+    fmax_y = numpy.max([vec_fcn(x,y)[1] for x, y in itertools.product(xvec, yvec)])
+
+    f0 = numpy.sqrt((fmax_x/delta_x)**2 + (fmax_y/delta_y)**2)/length_scale
+
+    if height == None:
+        height = delta_x/7
+    if width == None:
+        width = delta_y/7
+
+    for x, y in itertools.product(xvec, yvec):
+        arrow(ax, (x, y), numpy.array([x, y])+ vec_fcn(x, y)/f0, height=height, width=width, **kwargs)
 
 def coordinate_system(ax, x_arrow_length=0.05, x_arrow_base=0.1, neg_arrow=True, gid_ext=''):
     def move_spines(ax, xlim, ylim, arrow_length):

@@ -152,6 +152,11 @@ def layout_portrait(**kwargs):
     layout.fig.set_size_inches([5.5, 8])
     return layout
 
+def layout_landscape(**kwargs):
+    layout = Layouter(**kwargs)
+    layout.fig.set_size_inches([16, 4])
+    return layout
+
 def layout_1x2_normal_square(**kwargs):
     layout = Layouter(
         ncols=2,

@@ -157,6 +157,26 @@ def layout_landscape(**kwargs):
     layout.fig.set_size_inches([16, 4])
     return layout
 
+def layout_square(**kwargs):
+    if 'ncols' in kwargs.keys():
+        kwargs.pop('ncols')
+    if 'nrows' in kwargs.keys():
+        kwargs.pop('nrows')
+    layout = Layouter(nrows=1, ncols=1, **kwargs)
+    layout.fig.set_size_inches([5, 4.5])
+    layout.axes[0][0].set_aspect('equal', 'box')
+    return layout
+
+def layout_1x3_square(**kwargs):
+    if 'ncols' in kwargs.keys():
+        kwargs.pop('ncols')
+    if 'nrows' in kwargs.keys():
+        kwargs.pop('nrows')
+    layout = Layouter(nrows=1, ncols=3, **kwargs)
+    layout.fig.set_size_inches([16, 4.5])
+    layout.apply_all(lambda ax: ax.set_aspect('equal', 'box'))
+    return layout
+
 def layout_1x2_normal_square(**kwargs):
     layout = Layouter(
         ncols=2,

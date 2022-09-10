@@ -11,6 +11,18 @@ import inspect
 def get_mplstyle_path(style: str):
     return pkg_resources.resource_filename('MPLayout', os.path.join('mplstyles', style + '.mplstyle'))
 
+def isnotebook():
+    try:
+        shell = get_ipython().__class__.__name__
+        if shell == 'ZMQInteractiveShell':
+            return True   # Jupyter notebook or qtconsole
+        elif shell == 'TerminalInteractiveShell':
+            return False  # Terminal running IPython
+        else:
+            return False  # Other type (?)
+    except NameError:
+        return False      # Probably standard Python interpreter
+
 def new_figure(style: str = 'default', num: int = 1, clear: bool = True, xkcd: bool = False, **kwargs):
     if num == 1:
         matplotlib.pyplot.close('all')
@@ -23,7 +35,8 @@ def new_figure(style: str = 'default', num: int = 1, clear: bool = True, xkcd: b
             fig, ax = mpl.subplots(num=num, clear=clear, **kwargs)
     else:
         fig, ax = mpl.subplots(num=num, clear=clear, **kwargs)
-    fig.show()
+    if not isnotebook():
+        fig.show()
     return fig, ax
 
 ##

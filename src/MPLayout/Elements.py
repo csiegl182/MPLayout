@@ -18,6 +18,20 @@ def polygon(ax, x, y, facecolor=sty.color.lightgrey, edgecolor=sty.color.darkgre
     poly = ptch.Polygon([*zip(x,y)], facecolor=facecolor, edgecolor=edgecolor, **kwargs)
     ax.add_patch(poly)
 
+def circle(ax, x0=0, y0=0, r=1, n=50, **kwargs):
+    phi = numpy.linspace(0, 2*numpy.pi*(n+1)/n, n+1)
+    x = r*numpy.cos(phi)*get_aspect(ax)+x0
+    y = r*numpy.sin(phi)+y0
+    ax.plot(x,  y, **kwargs)
+
+def minus(ax, x0=0, y0=0, r=0.2, n=20, color=sty.color.black, **kwargs):
+    circle(ax, x0=x0, y0=y0, r=r, n=n, color=color, **kwargs)
+    ax.plot([x0-0.5*r*get_aspect(ax), x0+0.5*r*get_aspect(ax)], [y0, y0], color=color, **kwargs)
+
+def plus(ax, x0=0, y0=0, r=0.2, n=20, color=sty.color.black, **kwargs):
+    minus(ax, x0=x0, y0=y0, r=r, n=n, color=color, **kwargs)
+    ax.plot([x0, x0], [y0-0.5*r, y0+0.5*r], color=color, **kwargs)
+
 def z_arrow(ax, x, y, z_dir=1, diameter=0.1, color=sty.color.black, **kwargs):
     radius = diameter/2
     circle = ptch.Circle((x, y), radius, edgecolor=color, facecolor=sty.color.white, **kwargs)

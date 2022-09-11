@@ -48,17 +48,30 @@ def z_arrow(ax, x, y, z_dir=1, diameter=0.1, color=sty.color.black, **kwargs):
         ax.plot((x-delta, x+delta), (y-delta, y+delta), color=color, **kwargs)
         ax.plot((x-delta, x+delta), (y+delta, y-delta), color=color, **kwargs)
 
-    
-def arrow_head(ax, xy_tip, height, width, direction='up', angle=None, color=sty.color.black, gid='', **kwargs):
-    def A(phi, r):
-        return numpy.matrix([[numpy.cos(phi)   , -numpy.sin(phi)*r],
-                             [numpy.sin(phi)/r ,  numpy.cos(phi)  ]])
+def arrow_head(ax, xy0, height, width, direction='up', angle=None, pivot='top', color=sty.color.black, gid='', **kwargs):
+    def A(phi, xy_ratio):
+        return numpy.matrix([[numpy.cos(phi)   , -numpy.sin(phi)*xy_ratio],
+                             [numpy.sin(phi)/xy_ratio ,  numpy.cos(phi)  ]])
 
-    def arrow_polygon(xy_tip, height, width, angle, xy_aspect):
-        p_tip = numpy.matrix([[xy_tip[0]], [xy_tip[1]]])
+    def triangular_top(xy0, height, width):
+        p0 = numpy.matrix([[xy0[0]], [xy0[1]]])
         p = numpy.matrix([numpy.array([-height, 0, -height]),
                           numpy.array([width/2, 0, -width/2])])
-        return A(angle, xy_aspect)*p + p_tip
+        return p0, p
+
+    def triangular_center(xy0, height, width):
+        p0 = numpy.matrix([[xy0[0]], [xy0[1]]])
+        p = numpy.matrix([numpy.array([-height/3, 2/3*height, -height/3]),
+                          numpy.array([width/2, 0, -width/2])])
+        return p0, p
+    
+    triangular_polygon = {
+        'top': triangular_top,
+        'center': triangular_center,
+    }
+
+    def rotate_arrow(p0, p, angle, xy_aspect):
+        return A(angle, xy_aspect)*p + p0
 
     def get_patch(polygon, color, gid, **kwargs):
         x = numpy.array(polygon[0][:]).flatten()
@@ -66,18 +79,20 @@ def arrow_head(ax, xy_tip, height, width, direction='up', angle=None, color=sty.
         if 'linewidth' in kwargs.keys(): kwargs.pop('linewidth')
         return ptch.Polygon([*zip(x, y)], color=color, linewidth=0, gid=gid, **kwargs)
 
-    def get_angle(direction):
-        if direction == 'up':
-            return numpy.pi/2
-        elif direction == 'left':
-            return numpy.pi
-        elif direction == 'down':
-            return -numpy.pi/2
-        else:
-            return 0
+    arrow_direction = {
+        'right': 0,
+        'up': numpy.pi/2,
+        'left': numpy.pi,
+        'down': -numpy.pi/2
+    }
 
-    if angle == None: angle = get_angle(direction)
-    polygon = arrow_polygon(xy_tip, height, width, angle, get_aspect(ax))
+    def get_angle(direction, angle):
+        if angle == None:
+            angle = arrow_direction.get(direction, direction)
+        return angle
+
+    p0, p = triangular_polygon[pivot](xy0, height, width)
+    polygon = rotate_arrow(p0, p, get_angle(direction, angle), get_aspect(ax))
     patch = get_patch(polygon, color, gid, **kwargs)
     ax.add_patch(patch)
 
@@ -93,7 +108,7 @@ def arrow(ax, xy0, xy1, height=None, width=None, tail=False, color=sty.color.bla
         width = 3/4*height
     arrow_head(
         ax=ax,
-        xy_tip=xy1,
+        xy0=xy1,
         height=height,
         width=width,
         angle=alpha_r,
@@ -103,7 +118,7 @@ def arrow(ax, xy0, xy1, height=None, width=None, tail=False, color=sty.color.bla
     if tail:
         arrow_head(
             ax=ax,
-            xy_tip=xy0,
+            xy0=xy0,
             height=height,
             width=width,
             angle=alpha-numpy.pi,
